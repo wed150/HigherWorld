@@ -6,12 +6,15 @@
 #include "mc/network/NetworkIdentifier.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/DimensionDataPacket.h"
-#include "mc/network/packet/Packet.h"
+#include "mc/network/Packet.h"
 #include "mc/server/PropertiesSettings.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/dimension/DimensionDefinitionGroup.h"
 #include "mc/world/level/dimension/DimensionHeightRange.h"
+#include "mc/world/level/dimension/DerivedDimensionArguments.h"
+#include "mc/world/level/dimension/DimensionArguments.h"
+#include "mc/deps/core/utility/AutomaticID.h"
 #include "mc/world/level/dimension/VanillaDimensions.h"
 
 namespace glacie_team {
@@ -49,16 +52,12 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
     Dimension,
     &Dimension::$ctor,
     void*,
-    ILevel&              level,
-    DimensionType        dimId,
-    DimensionHeightRange heightRange,
-    Scheduler&           callbackContext,
-    std::string          name
+    DimensionArguments&& args
 ) {
-    if (dimId == VanillaDimensions::Overworld()) {
-        heightRange.mMax = 512;
+    if (args.mDimId == VanillaDimensions::Overworld()) {
+        args.mHeightRange->mMax = 512;
     }
-    return origin(level, dimId, heightRange, callbackContext, name);
+    return origin(std::forward<DimensionArguments>(args));
 }
 
 LL_AUTO_TYPE_INSTANCE_HOOK(
